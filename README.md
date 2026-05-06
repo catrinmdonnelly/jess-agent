@@ -1,28 +1,22 @@
 # Jess
 
-A daily Instagram agent for small businesses.
+A daily Instagram agent for small businesses, who removes the decision of what to post and the work of posting it, so the channel actually gets used instead of guilt-tripped about.
 
-Most small businesses know they should be posting more. They don't, because every post is a daily decision and the friction wins. The brand owner is busy making the thing or running the business, not writing captions. So they post twice a month and feel guilty about it.
-
-Jess removes the decision. Every morning at 08:30, she plans the day's two posts. Generates the images. By midday and evening, the carousels are live on Instagram. You don't see her work unless something breaks. You wake up to "we posted today, here's what went out."
+Most small businesses know they should be posting more, but every single post is a daily decision and the friction wins, especially when the owner is busy making the thing or running the business rather than writing captions, so they end up posting twice a month and feeling bad about it. Jess removes the decision: every morning at 08:30 she plans the day's two posts and generates the images, by midday and evening the carousels are live on Instagram, and you don't see any of her work unless something breaks. You wake up to "we posted today, here's what went out."
 
 > **Status:** Free to use. Take the code, point it at your business. MIT licensed.
 
 ## What Jess actually does for a business
 
-Take a small ceramic plant pot brand. £40k/month, two people, no marketing team. The owner is in the workshop making pots, not writing Instagram captions. She tried hiring a freelancer last year, £400/month, posted twice a week, content felt off-brand, cancelled after three months. Since then: maybe three posts a month when she remembers.
+Picture a small ceramic plant pot brand turning over £40,000 a month, with two people running it and no marketing team, because the founder is in the workshop making pots rather than writing Instagram captions. She tried hiring a freelancer last year for £400 a month who posted twice a week with content that felt off-brand, cancelled after three months, and since then has managed maybe three posts a month when she remembers. With Jess running, a typical day looks like this:
 
-With Jess running, here's what a typical day looks like:
+> **08:30** Jess reads the brand voice file ("we sell handmade ceramic plant pots, our wedge is irregular hand-shaped pieces big chains can't sell, audience is plant people aged 30 to 50") and the image style ("watercolour illustrations, lived-in not flat-lay, soft palette, human presence welcome"), then picks today's two moments. Today they're the day someone realises the plant they've been killing actually wants neglect, and the moment a pot you bought a year ago becomes the one with a chip you secretly love most. She writes a hook line for each, generates the watercolour scenes through Gemini, renders the hook cards in your brand colours and font, uploads everything to Cloudinary, and saves state for the publish phase later.
+>
+> **12:00** She posts the first carousel: hook card on slide one, watercolour scene on slide two, caption with the teaser, and five hashtags from your bank.
+>
+> **18:00** She posts the second carousel.
 
-> **08:30** Jess reads the brand voice file ("we sell handmade ceramic plant pots, our wedge is irregular hand-shaped pieces big chains can't sell, audience is plant people aged 30-50") and the image style ("watercolour illustrations, lived-in not flat-lay, soft palette, human presence welcome").
->
-> She picks today's two moments: the day someone realises the plant they've been killing actually wants neglect, and the moment a pot you bought a year ago becomes the one with a chip you secretly love most. Writes hooks for each. Generates the watercolour scenes via Gemini. Renders the hook cards in your brand colours and font. Uploads everything to Cloudinary. Saves state.
->
-> **12:00** Posts the first carousel. Hook card slide 1, watercolour slide 2, caption with the teaser, five hashtags from your bank.
->
-> **18:00** Posts the second carousel.
-
-That's the value. Not the brilliance of any single post. **Consistent presence on a channel where you'd otherwise post twice a month.** Two carousels a day, 700 a year, while you do everything else.
+The value isn't the brilliance of any single post, since none of them are going to go viral on their own. The value is **consistent presence on a channel where you'd otherwise have managed two posts a month**: two carousels a day, seven hundred a year, all while you're doing everything else.
 
 ## Who Jess helps
 
@@ -40,7 +34,7 @@ That's the value. Not the brilliance of any single post. **Consistent presence o
 
 ## What success looks like after a year
 
-Not viral posts. **Twelve months of consistent daily posting without burning out.** A library of 700+ posts that compound. Followers up because the algorithm rewards consistency. The occasional post that breaks out because the hook landed. You stopped feeling guilty about Instagram.
+Success isn't a viral post or two. It's twelve months of consistent daily posting that nobody had to burn out keeping up with, a library of seven hundred posts that compound on each other, follower numbers that have crept up because the algorithm rewards consistency more than it rewards perfection, the occasional post that breaks out because the hook genuinely landed, and the simple relief of not feeling guilty about Instagram any more.
 
 ## What you get
 
