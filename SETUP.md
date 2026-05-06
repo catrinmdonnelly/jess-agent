@@ -1,6 +1,6 @@
 # Jess setup
 
-Plain English, end to end. About 60 minutes the first time. The Meta side (Instagram + Facebook + access token) is the only fiddly bit.
+Plain English, end to end. About 60 minutes the first time. The Meta side (Instagram + Facebook + access token) is the only fiddly bit, and you only do it once.
 
 ## Before you start
 
@@ -8,7 +8,7 @@ You'll need:
 - A GitHub account ([sign up](https://github.com/join))
 - An Anthropic account ([sign up](https://console.anthropic.com))
 - A Google account (the same one you'll use for Gemini)
-- An **Instagram business or creator account**. If yours is personal, [convert it](https://help.instagram.com/502981923235522). It's free.
+- An **Instagram business or creator account**. If yours is personal, [convert it](https://help.instagram.com/502981923235522). Free, takes a minute.
 - A Facebook page connected to your Instagram. Instagram requires this for API posting, even if you never use Facebook.
 - A Cloudinary account ([sign up free](https://cloudinary.com/users/register/free))
 - About 60 minutes the first time
@@ -17,35 +17,35 @@ You will *not* need to write any code.
 
 ---
 
-## Step 1 — get an Anthropic API key
+## Step 1. Get an Anthropic API key
 
 1. Go to [console.anthropic.com](https://console.anthropic.com).
-2. Sign up or sign in. Click your profile in the top right → **API Keys**.
-3. **Create Key** → name `jess-agent` → copy the key. **You'll only see it once.**
-4. **Plans & Billing** → add £10 to £20 of credit. Jess uses about £3 a month for planning.
+2. Sign up or sign in. Click your profile in the top right, then **API Keys**.
+3. **Create Key**. Name it `jess-agent`. Copy the key. **You'll only see it once.**
+4. **Plans & Billing**. Add £10 to £20 of credit. Jess uses about £3 a month for planning.
 
 ---
 
-## Step 2 — get a Gemini API key
+## Step 2. Get a Gemini API key
 
 1. Go to [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
 2. Sign in with your Google account.
-3. Click **Create API key** → choose a project (or let it create one). Copy the key.
-4. Gemini's free tier covers most users (1500 requests/day on the experimental image model). Two carousels a day = ~60 requests/month.
+3. Click **Create API key**. Choose a project, or let it create one. Copy the key.
+4. Gemini's free tier covers most users (1500 requests/day on the experimental image model). Two carousels a day is roughly 60 requests a month.
 
 ---
 
-## Step 3 — copy this repo into your GitHub
+## Step 3. Copy this repo into your GitHub
 
 1. Click **Fork** on [the GitHub page](https://github.com/catrinmdonnelly/jess-agent), or **Use this template** for a clean repo with no commit history.
 
 ---
 
-## Step 4 — set up Cloudinary for image hosting
+## Step 4. Set up Cloudinary for image hosting
 
 Instagram's API needs your images to be at a public URL. Cloudinary handles that.
 
-1. Go to [cloudinary.com](https://cloudinary.com) → sign up free.
+1. Go to [cloudinary.com](https://cloudinary.com). Sign up free.
 2. After signup, you land on the dashboard. Note your **Cloud Name** (top of the dashboard, looks like `dxxxxxxxxx`).
 3. Settings (top right gear icon) → **Upload** → scroll to **Upload presets** → **Add upload preset**.
 4. Set the preset name to `jess-instagram`. Set **Signing mode** to **Unsigned**. Save.
@@ -53,28 +53,28 @@ Instagram's API needs your images to be at a public URL. Cloudinary handles that
 
 ---
 
-## Step 5 — convert Instagram to a Business or Creator account, link to Facebook
+## Step 5. Convert Instagram to a Business or Creator account, link to Facebook
 
 If you've already done this, skip to step 6.
 
 1. In the Instagram app on your phone: **Profile → Menu (top right) → Settings and privacy → Account type and tools → Switch to professional account**. Choose **Business** or **Creator**, either works.
-2. Connect to a **Facebook page**. If you don't have one, [create a free Facebook page](https://www.facebook.com/pages/create/) — it can be brand-new and empty.
-3. Once connected, you should be able to find your Instagram from the Facebook page's settings. If you can't, the linking step didn't complete; try again.
+2. Connect to a **Facebook page**. If you don't have one, [create a free Facebook page](https://www.facebook.com/pages/create/). It can be brand-new and empty.
+3. Once connected, you should be able to find your Instagram from the Facebook page's settings. If you can't, the linking step didn't complete. Try again.
 
 ---
 
-## Step 6 — get your Meta long-lived page access token
+## Step 6. Get your Meta long-lived page access token
 
-This is the slowest step. It's a series of clicks across two Meta tools.
+This is the slowest step. It's a series of clicks across two Meta tools. If you get stuck, copy this whole step into Claude or ChatGPT and ask it to walk you through interactively.
 
 ### 6a. Create a Meta developer app
 
 1. Go to [developers.facebook.com](https://developers.facebook.com). Log in with the Facebook account that owns your page.
-2. Click **My Apps** → **Create app**.
+2. Click **My Apps → Create app**.
 3. **Use case**: choose **Other**. Click **Next**.
 4. **App type**: **Business**. Click **Next**.
 5. App name: `jess-agent`. Contact email: yours. Business account: leave on default. Click **Create app**.
-6. You're now in the app dashboard. From the left sidebar: **Add product** → find **Instagram Graph API** → click **Set up**.
+6. You're now in the app dashboard. From the left sidebar: **Add product** → find **Instagram Graph API** → **Set up**.
 
 ### 6b. Get a short-lived user access token
 
@@ -88,7 +88,7 @@ This is the slowest step. It's a series of clicks across two Meta tools.
    - `pages_read_engagement`
    - `business_management`
 5. Click **Generate Access Token**. A popup asks for permission. Allow.
-6. Copy the token that appears. **This is short-lived — only valid for an hour. We'll convert it next.**
+6. Copy the token that appears. **This is short-lived, only valid for an hour. We'll convert it next.**
 
 ### 6c. Exchange for a long-lived user token
 
@@ -105,7 +105,7 @@ This is the slowest step. It's a series of clicks across two Meta tools.
    ```
    https://graph.facebook.com/v21.0/me/accounts?access_token=LONG_LIVED_USER_TOKEN
    ```
-2. The response shows your Facebook pages. Find the one connected to your Instagram. Copy the `access_token` for that page. **This is your `META_PAGE_ACCESS_TOKEN`. It does not expire as long as the user token doesn't.**
+2. The response shows your Facebook pages. Find the one connected to your Instagram. Copy the `access_token` for that page. **This is your `META_PAGE_ACCESS_TOKEN`. It does not expire as long as you keep using it.**
 
 ### 6e. Get your Instagram account ID
 
@@ -119,23 +119,41 @@ You now have:
 - `META_PAGE_ACCESS_TOKEN` (the page access token from 6d)
 - `META_INSTAGRAM_ACCOUNT_ID` (the Instagram business account ID from 6e)
 
-> **Token refresh:** The page access token will keep working as long as you use it. If you don't use it for 60 days, it expires and you'll need to redo 6b, 6c, 6d. In practice Jess uses it daily, so it stays alive.
+> **Token refresh:** The page access token will keep working as long as you use it. If you don't use it for 60 days, it expires and you need to redo 6b, 6c, 6d. Jess uses it daily, so it stays alive.
 
 ---
 
-## Step 7 — fill in your config files
+## Step 7. Fill in your config files. *This is what makes Jess sound like you.*
 
-In your forked repo:
+The Meta and Cloudinary steps are the technical bits. This step is the bit that decides whether the daily posts feel on-brand or generic.
 
-1. Click into `config/`.
-2. Edit `brand-voice.md`. Replace every placeholder. The more specific, the better.
-3. Edit `hashtag-bank.md`. Replace the placeholders with your actual hashtag groups.
-4. Edit `image-prompt-library.md`. This decides how Jess's daily illustrations look. Be specific about visual style, what to include, what to avoid, with worked examples.
-5. `system-prompt.md` is optional. Leave it as is to use the default.
+In your forked repo, click into `config/`:
+
+### `brand-voice.md` (most important)
+
+How your business sounds. What words you use. What you avoid. The audience.
+
+Be specific. "Friendly, conversational" is too vague. "We use full sentences, never exclamation marks, we say 'have a look' instead of 'check out', our audience is plant people aged 30-50 who hate Etsy clutter" is useful.
+
+### `hashtag-bank.md`
+
+The hashtags Jess can pick from. Group them however you like (always-on, audience, topic, location). Avoid mega-tags (#love, #instagood). They don't reach buyers.
+
+### `image-prompt-library.md`
+
+This decides how the daily illustrations actually look. Watercolour? Photo-real? Hand-drawn line? Bright editorial? Be specific:
+
+> "Watercolour illustrations. Lived-in, never flat-lay. Human presence welcome. Soft edges, muted palette."
+
+Plus two or three example briefs that have worked, so Jess can calibrate.
+
+### `system-prompt.md` (optional)
+
+Leave blank to use Jess's default voice. Edit it if you want her to think differently.
 
 ---
 
-## Step 8 — add your secrets and variables to GitHub
+## Step 8. Add your secrets and variables to GitHub
 
 In your repo: **Settings → Secrets and variables → Actions**.
 
@@ -159,46 +177,46 @@ Click the **Variables** tab. Then **New repository variable** for each:
 | Name | Value |
 |------|-------|
 | `BUSINESS_NAME` | Your business name. Used as the wordmark on hook cards. |
-| `INSTAGRAM_HANDLE` | Your Instagram handle including the `@`, e.g. `@yourbusiness`. Shown on hook cards. |
-| `BRAND_BG_COLOR` | Hex colour for hook card background, e.g. `#1a2332`. Defaults to ink navy. |
-| `BRAND_TEXT_COLOR` | Hex colour for hook text, e.g. `#f5efe6`. Defaults to warm off-white. |
-| `BRAND_ACCENT_COLOR` | Hex colour for the wordmark, e.g. `#eba18a`. Defaults to soft coral. |
+| `INSTAGRAM_HANDLE` | Your Instagram handle including the `@`, e.g. `@yourbusiness`. |
+| `BRAND_BG_COLOR` | Hex colour for hook card background, e.g. `#1a2332`. |
+| `BRAND_TEXT_COLOR` | Hex colour for hook text, e.g. `#f5efe6`. |
+| `BRAND_ACCENT_COLOR` | Hex colour for the wordmark, e.g. `#eba18a`. |
 
 ---
 
-## Step 9 — turn on Actions
+## Step 9. Turn on Actions
 
 1. In your repo, click **Actions** in the top tabs.
 2. Click **I understand my workflows, go ahead and enable them** if prompted.
 
 ---
 
-## Step 10 — test before going live
+## Step 10. Test before going live
 
-You don't have to wait for the schedule, and you don't have to post a real Instagram on your first run.
+You don't have to wait for the schedule. And you don't have to post a real Instagram on your first run.
 
-1. **Actions** → **Jess daily Instagram** in the left sidebar.
-2. Click **Run workflow** dropdown → leave **mode** blank for auto, or pick **plan** to test the planning step alone.
-3. **For your first run, set `JESS_PLAN_ONLY=true` as a repo variable.** This makes the plan-mode run write a plan to `plans/` but not generate images or post anything. A safe dry run.
-4. Run the workflow. Wait 1-2 minutes. Check `plans/YYYY-MM-DD.md` looks right.
-5. When you're happy, **delete the `JESS_PLAN_ONLY` variable** and run the workflow again. This time it'll generate images and prepare them. Still no posting (publishing only happens at the slot hours).
-6. Test posting: re-run with mode `publish_slot_1`. This actually posts to Instagram. Make sure you're ready.
+1. **Settings → Secrets and variables → Actions → Variables tab**. Click **New repository variable**. Name: `JESS_PLAN_ONLY`. Value: `true`.
+2. **Actions** → **Jess daily Instagram** → **Run workflow** → leave mode blank → **Run workflow**.
+3. Wait one to two minutes. Refresh.
+4. The run should turn green. Check `plans/YYYY-MM-DD.md` looks right.
+5. When you're happy, **delete the `JESS_PLAN_ONLY` variable** and run the workflow again. This time Jess will generate images and prepare them, but still won't post (publishing only happens at the slot hours).
+6. To test posting: re-run with mode `publish_slot_1` from the dropdown. **This actually posts to Instagram. Make sure you're ready.**
 
 If at any point the run goes red, click into it, expand the failed step, and read the error.
 
 ---
 
-## Step 11 (optional) — failure email alerts
+## Step 11 (optional). Failure email alerts
 
-Same as the other agents. Add four secrets:
-- `FAILURE_EMAIL_TO` — your inbox
-- `FAILURE_EMAIL_FROM` — a Gmail you can send from
-- `FAILURE_EMAIL_SMTP_HOST` — `smtp.gmail.com`
-- `FAILURE_EMAIL_SMTP_PASS` — a [16-character app password](https://myaccount.google.com/apppasswords)
+Add four secrets:
+- `FAILURE_EMAIL_TO`, your inbox
+- `FAILURE_EMAIL_FROM`, a Gmail you can send from
+- `FAILURE_EMAIL_SMTP_HOST`, `smtp.gmail.com`
+- `FAILURE_EMAIL_SMTP_PASS`, a [16-character app password](https://myaccount.google.com/apppasswords)
 
 ---
 
-## Step 12 — let the schedule run
+## Step 12. Let the schedule run
 
 Once the schedule is on, Jess will:
 - 08:30 plan and prepare images
@@ -211,24 +229,42 @@ You'll see the run results in **Actions** and the day's plan in `plans/`.
 
 ## Troubleshooting
 
-**`Missing required environment variable: ANTHROPIC_API_KEY`** — Secret not set. Step 8.
+**`Missing required environment variable: ANTHROPIC_API_KEY`**
 
-**`(#10) The application does not have permission to perform this action`** — The Meta token doesn't have the right permissions, or it's the user token instead of the page token. Redo step 6.
+Secret not set. Go back to step 8.
 
-**`Invalid OAuth access token`** — Token expired (60 days without use, or you regenerated something). Redo steps 6b-6d.
+**`(#10) The application does not have permission to perform this action`**
 
-**`The user must be an administrator, editor, or moderator of the page`** — Wrong Facebook page. Make sure the Instagram is connected to the page whose access token you're using.
+The Meta token doesn't have the right permissions, or it's the user token instead of the page token. Redo step 6.
 
-**Hook card looks wrong** — Check `BRAND_BG_COLOR` etc. are valid hex codes (with or without `#`). Default fallbacks should kick in if a value is missing.
+**`Invalid OAuth access token`**
 
-**Image generation fails** — Gemini sometimes refuses prompts that mention violence, names of real people, or specific brands. Make `image-prompt-library.md` more abstract, or set `OPENAI_API_KEY` for a fallback (uses GPT-Image-1).
+Token expired (60 days without use, or you regenerated something). Redo steps 6b to 6d.
 
-**Plan looks generic** — Almost always a config problem. Make `brand-voice.md` more specific. The more detail you give Jess, the sharper she gets.
+**`The user must be an administrator, editor, or moderator of the page`**
 
-**The schedule isn't firing** — GitHub Actions pauses cron in repos with no activity for 60 days. Run the workflow manually once, and the schedule resumes.
+Wrong Facebook page. Make sure the Instagram is connected to the page whose access token you're using.
 
-**Posts are double-posting** — Shouldn't happen, Jess checks `posted-log.json` before posting. If it does, check for two GitHub Actions runs firing at the same hour, or two repos pointing at the same Instagram.
+**Hook card looks wrong**
 
-**Caption character limit** — Instagram caption limit is 2,200 characters. Jess's defaults stay well under.
+Check `BRAND_BG_COLOR` etc. are valid hex codes (with or without `#`). Default fallbacks should kick in if a value is missing.
 
-**Cron timing** — GitHub Actions cron isn't 100% precise. Posts can fire 5-15 minutes late at peak times. That's normal. If you need exact timing, run on Cloudflare Cron or Render instead.
+**Image generation fails**
+
+Gemini sometimes refuses prompts that mention violence, names of real people, or specific brands. Make `image-prompt-library.md` more abstract. The hook card will still post on its own if the scene fails (you'll get the hook card on both slides instead of a true carousel).
+
+**Plan looks generic**
+
+Almost always a config problem. Make `brand-voice.md` more specific. The more detail you give Jess, the sharper she gets.
+
+**The schedule isn't firing**
+
+GitHub Actions pauses cron in repos with no activity for 60 days. Run the workflow manually once and the schedule resumes.
+
+**Posts double-post**
+
+Shouldn't happen. Jess checks `posted-log.json` before posting. If it does, check for two GitHub Actions runs firing at the same hour, or two repos pointing at the same Instagram.
+
+**Cron timing**
+
+GitHub Actions cron isn't 100% precise. Posts can fire 5-15 minutes late at peak times. That's normal.

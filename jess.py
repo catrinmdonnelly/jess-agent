@@ -1,15 +1,17 @@
 """
-Jess — daily Instagram agent.
+Jess, daily Instagram agent.
 
 Runs three times a day (default UK time):
 
-    08:30  — mode=plan          (Claude → image gen → hook card → upload, save state)
-    12:00  — mode=publish_slot_1 (read state, post carousel slot 1)
-    18:00  — mode=publish_slot_2 (read state, post carousel slot 2)
+    08:30  plan         (Claude writes the day's posts, Gemini generates the
+                         scenes, PIL renders the hook cards, Cloudinary hosts
+                         the images, state file saved)
+    12:00  publish_1    (read state, post carousel slot 1 to Instagram)
+    18:00  publish_2    (read state, post carousel slot 2 to Instagram)
 
 Each post is a 2-slide carousel:
-    slide 1 — hook card (text on a brand-colour background, rendered with PIL)
-    slide 2 — generated illustration (style is controlled by your prompt library)
+    slide 1: a hook card (text on a brand-colour background, rendered with PIL)
+    slide 2: a generated illustration (style is set by your prompt library)
 
 Each run picks its mode from the current local hour. GitHub Actions cron fires
 in UTC, so we schedule one cron per slot for BST and one for GMT for UK users.
@@ -122,8 +124,7 @@ class SlotResult:
     hook_image_url: str = ""
     scene_image_path: str = ""
     scene_image_url: str = ""
-    scene_source: str = ""
-    host: str = ""
+    scene_source: str = ""  # "gemini" or "hook_fallback"
     media_id: str = ""
     prepared: bool = False
     posted: bool = False
@@ -164,10 +165,10 @@ Each post is a 2-slide carousel:
 
 Each post has:
   1. A moment (what's actually happening for the person in the scene)
-  2. A hook line — ONE sentence, max 95 characters. Jarring. Names something specific. Must make someone stop scrolling.
+  2. A hook line, ONE sentence, max 95 characters. Jarring. Names something specific. Must make someone stop scrolling.
   3. A 2-3 sentence caption teaser (sets up the moment, does not resolve it). This is the Instagram caption.
   4. A 3-4 paragraph story in third person (a small narrative arc, for reference / future expansion)
-  5. An image brief for slide 2 (specific enough to generate a useful image — describe the scene, the mood, what's in frame, what isn't. NO text in the illustration.)
+  5. An image brief for slide 2 (specific enough to generate a useful image, describe the scene, the mood, what's in frame, what isn't. NO text in the illustration.)
   6. Exactly 5 hashtags from the bank
 
 Rules:
@@ -207,14 +208,14 @@ def generate_plan() -> dict:
     try:
         import anthropic
     except ImportError:
-        raise RuntimeError("anthropic package not installed — run: pip install -r requirements.txt")
+        raise RuntimeError("anthropic package not installed, run: pip install -r requirements.txt")
 
     brand = read_if_exists(CONFIG / "brand-voice.md",
-                           "(brand-voice.md missing — fill in config/brand-voice.md)")
+                           "(brand-voice.md missing, fill in config/brand-voice.md)")
     hashtags = read_if_exists(CONFIG / "hashtag-bank.md",
-                              "(hashtag-bank.md missing — fill in config/hashtag-bank.md)")
+                              "(hashtag-bank.md missing, fill in config/hashtag-bank.md)")
     prompts = read_if_exists(CONFIG / "image-prompt-library.md",
-                             "(image-prompt-library.md missing — fill in config/image-prompt-library.md)")
+                             "(image-prompt-library.md missing, fill in config/image-prompt-library.md)")
 
     recent_plans = []
     for i in range(1, 8):
@@ -238,14 +239,14 @@ HASHTAG BANK:
 IMAGE PROMPT LIBRARY (use this style for the slide 2 illustration):
 {prompts}
 
-WEEKLY DIRECTION (from your strategy agent, if any — follow this if it's here):
+WEEKLY DIRECTION (from your strategy agent, if any, follow this if it's here):
 {direction}
 
 SEO TRENDS (search angles to weave in where natural):
 {seo_trends}
 
 LAST 7 DAYS OF POSTS (for variety, do not repeat):
-{chr(10).join(recent_plans) if recent_plans else '(none — this is a fresh start)'}
+{chr(10).join(recent_plans) if recent_plans else '(none, this is a fresh start)'}
 
 Plan today's two posts. Return JSON only."""
 
@@ -275,12 +276,12 @@ Plan today's two posts. Return JSON only."""
 
 def _plan_to_markdown(plan: dict) -> str:
     business = env("BUSINESS_NAME", required=False, default="Jess")
-    out = [f"# {business} Instagram — {today_key()}\n"]
+    out = [f"# {business} Instagram, {today_key()}\n"]
     for p in plan["posts"]:
         slot1_hour = int(env("JESS_SLOT1_HOUR", required=False, default="12"))
         slot2_hour = int(env("JESS_SLOT2_HOUR", required=False, default="18"))
         hour = slot1_hour if p["slot"] == 1 else slot2_hour
-        out.append(f"### POST {p['slot']} — {now_local().strftime('%A %d %B')}, {hour:02d}:00\n")
+        out.append(f"### POST {p['slot']}, {now_local().strftime('%A %d %B')}, {hour:02d}:00\n")
         out.append(f"**Moment:** {p['moment']}\n")
         out.append(f"**Hook (slide 1):** {p['hook']}\n")
         out.append(f"**Caption:**\n\n{p['caption']}\n")
@@ -350,7 +351,7 @@ def _wrap_text(text: str, font, max_width: int, draw) -> list[str]:
 
 
 def build_hook_card(hook_text: str, out_path: Path) -> None:
-    """Render the slide-1 hook card — text on a brand-colour background, 1080x1080 PNG."""
+    """Render the slide-1 hook card, text on a brand-colour background, 1080x1080 PNG."""
     from PIL import Image, ImageDraw
 
     _ensure_fonts()
@@ -430,22 +431,10 @@ def build_hook_card(hook_text: str, out_path: Path) -> None:
 
 # ─── Step 2b: Illustrate (slide 2) ─────────────────────────────────────────────
 
-def generate_image(prompt: str, out_path: Path) -> str:
-    """Generate one image, returning the source used ('gemini' or 'openai'). Raises on total failure."""
+def generate_image(prompt: str, out_path: Path) -> None:
+    """Generate one image with Gemini. Raises on failure."""
     log(f"  generating image: {out_path.name}")
 
-    try:
-        return _generate_with_gemini(prompt, out_path)
-    except Exception as e:
-        log(f"  gemini failed ({e}) — falling back to OpenAI")
-
-    try:
-        return _generate_with_openai(prompt, out_path)
-    except Exception as e:
-        raise RuntimeError(f"both image backends failed: {e}")
-
-
-def _generate_with_gemini(prompt: str, out_path: Path) -> str:
     from google import genai
     from google.genai import types
 
@@ -480,30 +469,8 @@ def _generate_with_gemini(prompt: str, out_path: Path) -> str:
         if getattr(part, "inline_data", None):
             out_path.write_bytes(part.inline_data.data)
             _crop_white_border(out_path)
-            return "gemini"
+            return
     raise RuntimeError("gemini returned no image data in response")
-
-
-def _generate_with_openai(prompt: str, out_path: Path) -> str:
-    api_key = env("OPENAI_API_KEY", required=False)
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY not set — no fallback configured")
-
-    body = json.dumps({
-        "model": env("OPENAI_IMAGE_MODEL", required=False, default="gpt-image-1"),
-        "prompt": prompt,
-        "size": "1024x1024",
-        "n": 1,
-    }).encode()
-    req = Request("https://api.openai.com/v1/images/generations", data=body, method="POST")
-    req.add_header("Authorization", f"Bearer {api_key}")
-    req.add_header("Content-Type", "application/json")
-
-    resp = urlopen(req, timeout=90)
-    result = json.loads(resp.read().decode())
-    b64 = result["data"][0]["b64_json"]
-    out_path.write_bytes(base64.b64decode(b64))
-    return "openai"
 
 
 def _crop_white_border(path: Path) -> None:
@@ -527,26 +494,8 @@ def _crop_white_border(path: Path) -> None:
 
 # ─── Step 3: Upload ────────────────────────────────────────────────────────────
 
-def upload_image(path: Path) -> tuple[str, str]:
-    """Upload image and return (public_url, host_used). Tries Cloudinary then WordPress."""
-    if env("CLOUDINARY_CLOUD_NAME", required=False):
-        try:
-            url = _upload_cloudinary(path)
-            return url, "cloudinary"
-        except Exception as e:
-            log(f"  cloudinary failed ({e}) — falling back to WordPress")
-
-    if env("WP_SITE_URL", required=False):
-        url = _upload_wordpress(path)
-        return url, "wordpress"
-
-    raise RuntimeError(
-        "No image host configured. Set CLOUDINARY_CLOUD_NAME + CLOUDINARY_UPLOAD_PRESET, "
-        "or WP_SITE_URL + WP_USERNAME + WP_PASSWORD. See SETUP.md."
-    )
-
-
-def _upload_cloudinary(path: Path) -> str:
+def upload_image(path: Path) -> str:
+    """Upload to Cloudinary and return the public URL."""
     cloud_name = env("CLOUDINARY_CLOUD_NAME")
     preset = env("CLOUDINARY_UPLOAD_PRESET")
 
@@ -575,27 +524,6 @@ def _upload_cloudinary(path: Path) -> str:
     url = result.get("secure_url")
     if not url:
         raise RuntimeError(f"cloudinary response missing secure_url: {result}")
-    return url
-
-
-def _upload_wordpress(path: Path) -> str:
-    site = env("WP_SITE_URL").rstrip("/")
-    user = env("WP_USERNAME")
-    password = env("WP_PASSWORD")
-
-    data = path.read_bytes()
-    auth = base64.b64encode(f"{user}:{password}".encode()).decode()
-
-    req = Request(f"{site}/wp-json/wp/v2/media", data=data, method="POST")
-    req.add_header("Authorization", f"Basic {auth}")
-    req.add_header("Content-Type", "image/png")
-    req.add_header("Content-Disposition", f'attachment; filename="{path.name}"')
-
-    resp = urlopen(req, timeout=60)
-    result = json.loads(resp.read().decode())
-    url = result.get("source_url")
-    if not url:
-        raise RuntimeError(f"wordpress response missing source_url: {result}")
     return url
 
 
@@ -680,7 +608,7 @@ def write_report(run: RunResult) -> Path:
     else:
         status = "needs_input"
         error_bits = [run.planning_error, run.posting_error] + [s.error for s in run.slots if s.error]
-        headline = f"Jess {run.mode}: failed — {'; '.join(b for b in error_bits if b)[:140]}"
+        headline = f"Jess {run.mode}: failed, {'; '.join(b for b in error_bits if b)[:140]}"
         actions = [
             "Check the GitHub Actions run page for full logs",
             "Re-run the workflow manually once the issue is fixed",
@@ -688,7 +616,7 @@ def write_report(run: RunResult) -> Path:
 
     payload = {
         "agent": "jess",
-        "agent_display": "Jess — Instagram",
+        "agent_display": "Jess, Instagram",
         "timestamp": now_local().strftime("%Y-%m-%dT%H:%M:%S"),
         "status": status,
         "headline": headline,
@@ -709,13 +637,13 @@ def write_report(run: RunResult) -> Path:
 def send_failure_email(run: RunResult) -> None:
     to_addr = env("FAILURE_EMAIL_TO", required=False)
     if not to_addr:
-        log("  (email alert skipped — FAILURE_EMAIL_TO not set)")
+        log("  (email alert skipped, FAILURE_EMAIL_TO not set)")
         return
     host = env("FAILURE_EMAIL_SMTP_HOST", required=False, default="smtp.gmail.com")
     from_addr = env("FAILURE_EMAIL_FROM", required=False, default=to_addr)
     password = env("FAILURE_EMAIL_SMTP_PASS", required=False)
     if not password:
-        log("  (email alert skipped — FAILURE_EMAIL_SMTP_PASS not set)")
+        log("  (email alert skipped, FAILURE_EMAIL_SMTP_PASS not set)")
         return
 
     run_url = f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', '')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')}"
@@ -763,7 +691,7 @@ def load_daily_state() -> dict:
     path = STATE_DIR / f"{today_key()}.json"
     if not path.exists():
         raise RuntimeError(
-            f"no state file for {today_key()} — morning plan run either hasn't happened "
+            f"no state file for {today_key()}, morning plan run either hasn't happened "
             f"yet or failed. Re-run with JESS_MODE=plan first."
         )
     return json.loads(path.read_text())
@@ -834,26 +762,24 @@ def run_plan(run: RunResult) -> int:
         scene_path = IMAGES / f"{today_key()}-slot{slot}-scene.png"
         scene_ok = False
         try:
-            slot_result.scene_source = generate_image(post["image_brief"], scene_path)
+            generate_image(post["image_brief"], scene_path)
             slot_result.scene_image_path = str(scene_path.relative_to(ROOT))
+            slot_result.scene_source = "gemini"
             scene_ok = True
         except Exception as e:
-            log(f"  scene generation failed ({e}) — will use hook card as fallback")
+            log(f"  scene generation failed ({e}). Will use hook card as fallback.")
             slot_result.scene_source = "hook_fallback"
 
         try:
-            hook_url, host = upload_image(hook_path)
-            slot_result.hook_image_url = hook_url
-            slot_result.host = host
+            slot_result.hook_image_url = upload_image(hook_path)
 
             if scene_ok:
-                scene_url, _ = upload_image(scene_path)
-                slot_result.scene_image_url = scene_url
+                slot_result.scene_image_url = upload_image(scene_path)
             else:
-                slot_result.scene_image_url = hook_url
+                slot_result.scene_image_url = slot_result.hook_image_url
 
             slot_result.prepared = True
-            log(f"  slot {slot} prepared: {host} ({'hook + scene' if scene_ok else 'hook only'})")
+            log(f"  slot {slot} prepared ({'hook + scene' if scene_ok else 'hook only'})")
         except Exception as e:
             traceback.print_exc()
             slot_result.error = f"image upload failed: {e}"
@@ -875,7 +801,6 @@ def run_plan(run: RunResult) -> int:
                 "hook_image_path": s.hook_image_path,
                 "scene_image_path": s.scene_image_path,
                 "scene_source": s.scene_source,
-                "host": s.host,
             }
             for s in run.slots if s.prepared
         ],
@@ -889,7 +814,7 @@ def run_plan(run: RunResult) -> int:
         send_failure_email(run)
         return 1
 
-    log(f"done — {run.summary_line}")
+    log(f"done, {run.summary_line}")
     return 0
 
 
@@ -901,7 +826,7 @@ def run_publish(run: RunResult, slot: int) -> int:
     if already_posted(slot):
         sr.posted = True
         sr.error = "already posted today (log says so)"
-        log(f"  slot {slot} already posted — nothing to do")
+        log(f"  slot {slot} already posted, nothing to do")
         run.fully_successful = True
         write_report(run)
         return 0
@@ -935,7 +860,6 @@ def run_publish(run: RunResult, slot: int) -> int:
     sr.scene_image_path = post_state["scene_image_path"]
     sr.scene_image_url = post_state["scene_image_url"]
     sr.scene_source = post_state["scene_source"]
-    sr.host = post_state["host"]
 
     try:
         media_id = post_carousel(
@@ -947,7 +871,6 @@ def run_publish(run: RunResult, slot: int) -> int:
         save_to_posted_log(f"{today_key()}-slot{slot}", {
             "slot": slot,
             "media_id": media_id,
-            "host": sr.host,
             "hook_image_url": sr.hook_image_url,
             "scene_image_url": sr.scene_image_url,
             "scene_source": sr.scene_source,
@@ -966,7 +889,7 @@ def run_publish(run: RunResult, slot: int) -> int:
         send_failure_email(run)
         return 1
 
-    log(f"done — {run.summary_line}")
+    log(f"done, {run.summary_line}")
     return 0
 
 
@@ -976,11 +899,11 @@ def main() -> int:
     mode = determine_mode()
     run = RunResult(mode=mode, date=today_key(), started_at=now_local().isoformat())
 
-    log(f"jess — {mode} run for {run.date} (local hour: {now_local().hour:02d})")
+    log(f"jess, {mode} run for {run.date} (local hour: {now_local().hour:02d})")
 
     # Plan-only mode lets you see what Jess would post before going live.
     if mode == "plan" and env("JESS_PLAN_ONLY", required=False) == "true":
-        log("plan-only mode — no image generation or posting")
+        log("plan-only mode, no image generation or posting")
         run.slots = [SlotResult(slot=1), SlotResult(slot=2)]
         try:
             generate_plan()
@@ -996,7 +919,7 @@ def main() -> int:
     if mode == "publish_slot_2":
         return run_publish(run, 2)
 
-    log(f"skipping — current local hour ({now_local().hour}) is not a scheduled slot. "
+    log(f"skipping, current local hour ({now_local().hour}) is not a scheduled slot. "
         f"Set JESS_MODE env var to force a specific run.")
     return 0
 

@@ -17,6 +17,6 @@ Examples:
 
 **Weak input:** "We're a small ecommerce brand. Friendly tone."
 
-**Strong input:** "We sell handmade ceramic plant pots, £45 average order, mostly to women aged 30-45 in the UK. Tone: warm, slightly self-deprecating, never precious about ourselves. We avoid 'beautiful', 'gorgeous', 'love this' — they're empty. We use specific descriptions: 'this one is ten inches tall and the glaze pooled blue at the bottom because the kiln ran hot.' We never use exclamation marks. We never say 'shop now', it sounds like an advert."
+**Strong input:** "We sell handmade ceramic plant pots, £45 average order, mostly to women aged 30-45 in the UK. Tone: warm, slightly self-deprecating, never precious about ourselves. We avoid 'beautiful', 'gorgeous', 'love this', they're empty. We use specific descriptions: 'this one is ten inches tall and the glaze pooled blue at the bottom because the kiln ran hot.' We never use exclamation marks. We never say 'shop now', it sounds like an advert."
 
 The same applies to image prompts. "Lifestyle shots" is weak. "A pair of hands lifting a heavy ceramic pot, soft afternoon light through a kitchen window, a hint of green plant just visible at the top of the frame, slightly desaturated film aesthetic" is strong.

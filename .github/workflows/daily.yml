@@ -41,7 +41,7 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-opus-4-6' }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.0-flash-exp' }}
       AGENT_TIMEZONE: ${{ vars.AGENT_TIMEZONE || 'Europe/London' }}
       BUSINESS_NAME: ${{ vars.BUSINESS_NAME || 'your business' }}
       INSTAGRAM_HANDLE: ${{ vars.INSTAGRAM_HANDLE || '' }}
@@ -58,9 +58,6 @@ jobs:
       CLOUDINARY_UPLOAD_PRESET: ${{ secrets.CLOUDINARY_UPLOAD_PRESET }}
       META_INSTAGRAM_ACCOUNT_ID: ${{ secrets.META_INSTAGRAM_ACCOUNT_ID }}
       META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
-      WP_SITE_URL: ${{ secrets.WP_SITE_URL }}
-      WP_USERNAME: ${{ secrets.WP_USERNAME }}
-      WP_PASSWORD: ${{ secrets.WP_PASSWORD }}
       FAILURE_EMAIL_TO: ${{ secrets.FAILURE_EMAIL_TO }}
       FAILURE_EMAIL_FROM: ${{ secrets.FAILURE_EMAIL_FROM }}
       FAILURE_EMAIL_SMTP_HOST: ${{ secrets.FAILURE_EMAIL_SMTP_HOST }}

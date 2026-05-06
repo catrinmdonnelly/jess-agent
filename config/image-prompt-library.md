@@ -23,7 +23,7 @@ Replace this with elements that should be in every image, if any. Examples:
 ## Never include
 
 Replace this with hard nos. Examples:
-- No text in the image (Jess defaults to this — the hook card carries the text)
+- No text in the image (Jess defaults to this, the hook card carries the text)
 - No logos or brand marks
 - No celebrities or recognisable real people
 - No firearms / alcohol / specific things that don't fit your brand
