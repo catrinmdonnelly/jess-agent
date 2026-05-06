@@ -908,8 +908,14 @@ def main() -> int:
         try:
             generate_plan()
         except Exception as e:
+            traceback.print_exc()
             run.planning_error = f"planning failed: {e}"
+            log(f"  ERROR: {run.planning_error}")
         write_report(run)
+        if run.planning_error:
+            send_failure_email(run)
+            return 1
+        log(f"done, plan written to plans/{run.date}.md")
         return 0
 
     if mode == "plan":

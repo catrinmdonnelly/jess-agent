@@ -54,6 +54,7 @@ jobs:
       JESS_SLOT1_HOUR: ${{ vars.JESS_SLOT1_HOUR || '12' }}
       JESS_SLOT2_HOUR: ${{ vars.JESS_SLOT2_HOUR || '18' }}
       JESS_MODE: ${{ inputs.mode }}
+      JESS_PLAN_ONLY: ${{ vars.JESS_PLAN_ONLY }}
       CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
       CLOUDINARY_UPLOAD_PRESET: ${{ secrets.CLOUDINARY_UPLOAD_PRESET }}
       META_INSTAGRAM_ACCOUNT_ID: ${{ secrets.META_INSTAGRAM_ACCOUNT_ID }}
